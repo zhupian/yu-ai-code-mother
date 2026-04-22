@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 应用生成平台 - 简洁版布局 Demo</title>
+  <style>
+    :root {
+      --sidebar-width: 292px;
+      --brand: #4f78ff;
+      --brand-strong: #315df4;
+      --brand-soft: #eef4ff;
+      --ink: #181c25;
+      --muted: #858b99;
+      --line: #e9edf4;
+      --sidebar-bg: #f7f9fc;
+      --white: #fff;
+      --shadow-input: 0 24px 64px rgba(24, 38, 78, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #fbfdff 0%, #ffffff 48%, #f8fbff 100%);
+    }
+
+    /* 后续接入 Vue 时：普通用户不渲染管理入口；管理员基于 loginUser.userRole === 'admin' 渲染。 */
+    body.role-user .admin-only {
+      display: none;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 16px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(247, 249, 252, 0.94);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 4px 22px;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--brand-strong);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: #fff;
+      background: linear-gradient(135deg, #2f5bff, #7ba1ff);
+      box-shadow: 0 10px 24px rgba(49, 93, 244, 0.23);
+      font-size: 18px;
+    }
+
+    .icon-button {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: #6f7582;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .icon-button:hover {
+      color: var(--brand-strong);
+      border-color: #cbd8ff;
+    }
+
+    .new-chat {
+      width: 100%;
+      height: 48px;
+      border: 1px solid #e5eaf4;
+      border-radius: 999px;
+      background: #fff;
+      color: #20242c;
+      font-size: 16px;
+      box-shadow: 0 10px 24px rgba(18, 28, 48, 0.055);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .new-chat:hover {
+      border-color: #c8d5ff;
+      color: var(--brand-strong);
+      box-shadow: 0 14px 32px rgba(79, 120, 255, 0.12);
+    }
+
+    .side-scroll {
+      flex: 1;
+      overflow: auto;
+      margin: 20px -6px 14px;
+      padding: 0 6px;
+    }
+
+    .side-section {
+      margin-bottom: 20px;
+    }
+
+    .side-section.history-primary {
+      min-height: 0;
+    }
+
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .section-label {
+      margin: 0 0 10px;
+      padding: 0 10px;
+      color: #8b929e;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .nav-item,
+    .history-item {
+      display: flex;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: #242832;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .nav-item {
+      align-items: center;
+      min-height: 40px;
+    }
+
+    .quick-links .nav-item {
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 10px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.62);
+      color: #68707f;
+      font-size: 13px;
+    }
+
+    .quick-links .nav-item:hover {
+      border-color: #d9e2ff;
+      background: #fff;
+    }
+
+    .quick-links .nav-icon {
+      width: auto;
+      font-size: 14px;
+    }
+
+    .nav-item:hover,
+    .history-item:hover,
+    .history-item.active {
+      background: var(--brand-soft);
+      color: var(--brand-strong);
+    }
+
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+      opacity: 0.88;
+    }
+
+    .history-item {
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 4px;
+    }
+
+    .history-title {
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 15px;
+    }
+
+    .history-meta {
+      display: flex;
+      gap: 8px;
+      color: #9aa1ad;
+      font-size: 12px;
+    }
+
+    .sidebar-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 10px 0;
+      border-top: 1px solid var(--line);
+      color: #8d94a1;
+    }
+
+    .avatar-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e3e8f2;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #eaf0ff, #fff);
+    }
+
+    .workspace {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-topbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      height: 62px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      width: min(850px, calc(100% - 48px));
+      margin: auto;
+      padding: 72px 0 88px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 0 0 36px;
+      text-align: center;
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-title .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      font-size: 23px;
+    }
+
+    .composer {
+      width: min(820px, 100%);
+      min-height: 118px;
+      border: 1px solid #e2e7f0;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow-input);
+      overflow: hidden;
+    }
+
+    .composer textarea {
+      width: 100%;
+      height: 70px;
+      resize: none;
+      border: 0;
+      outline: none;
+      padding: 20px 24px 6px;
+      background: transparent;
+      color: #1f2430;
+      font: inherit;
+      font-size: 17px;
+    }
+
+    .composer textarea::placeholder {
+      color: #aab2c0;
+    }
+
+    .composer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 16px 14px;
+    }
+
+    .send {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, #7da0ff, #4d72ff);
+      box-shadow: 0 12px 22px rgba(79, 120, 255, 0.28);
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(79, 120, 255, 0.34);
+    }
+
+    .hint-line {
+      margin-top: 18px;
+      color: #9299a6;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      :root {
+        --sidebar-width: 252px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 20;
+        width: min(86vw, 310px);
+        transform: translateX(-105%);
+        transition: 0.25s ease;
+        box-shadow: 24px 0 60px rgba(18, 28, 48, 0.18);
+      }
+
+      .app-shell.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .mobile-topbar {
+        display: flex;
+      }
+
+      .hero {
+        width: min(100% - 28px, 820px);
+        padding: 72px 0 56px;
+        justify-content: flex-start;
+      }
+
+      .hero-title {
+        flex-direction: column;
+        font-size: 28px;
+      }
+
+      .composer {
+        min-height: 112px;
+      }
+
+      .composer textarea {
+        height: 68px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<!-- role-admin：展示管理入口；改为 role-user：隐藏管理入口。 -->
+<body class="role-admin">
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <div class="brand-mark"><span class="brand-logo">鲸</span><span>chatcode</span></div>
+        <button class="icon-button" title="收起侧栏">▯</button>
+      </div>
+
+      <button class="new-chat">⊕ 开启新对话</button>
+
+      <div class="side-scroll">
+        <section class="side-section history-primary">
+          <p class="section-label">历史对话</p>
+          <div class="history-item active">
+            <div class="history-title">OpenChat 主页生成 HTML 预览功能</div>
+            <div class="history-meta"><span>Vue 项目</span><span>刚刚</span></div>
+          </div>
+          <div class="history-item">
+            <div class="history-title">修改主页生成预览功能</div>
+            <div class="history-meta"><span>HTML</span><span>今天</span></div>
+          </div>
+          <div class="history-item">
+            <div class="history-title">主页 HTML 预览功能添加</div>
+            <div class="history-meta"><span>多文件</span><span>昨天</span></div>
+          </div>
+          <div class="history-item">
+            <div class="history-title">实现页面内 HTML 预览</div>
+            <div class="history-meta"><span>HTML</span><span>5 天前</span></div>
+          </div>
+          <div class="history-item">
+            <div class="history-title">修改 HomePage 和 GlobalHeader 样式</div>
+            <div class="history-meta"><span>重构</span><span>12 天前</span></div>
+          </div>
+        </section>
+
+        <section class="side-section">
+          <p class="section-label">快捷入口</p>
+          <div class="quick-links">
+            <div class="nav-item"><span class="nav-icon">🧩</span><span>作品</span></div>
+            <div class="nav-item"><span class="nav-icon">🌍</span><span>案例</span></div>
+            <div class="nav-item admin-only"><span class="nav-icon">🛠</span><span>应用</span></div>
+            <div class="nav-item admin-only"><span class="nav-icon">👥</span><span>用户</span></div>
+            <div class="nav-item admin-only"><span class="nav-icon">💬</span><span>对话</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="avatar-line"><span class="avatar">👤</span><span>我的空间</span></div>
+        <span>•••</span>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <div class="mobile-topbar">
+        <button class="icon-button" onclick="toggleSidebar()">☰</button>
+        <div class="brand-mark"><span class="brand-logo">鲸</span><span>chatcode</span></div>
+        <button class="icon-button">＋</button>
+      </div>
+
+      <section class="hero">
+        <h1 class="hero-title"><span class="brand-logo">鲸</span><span>开始创建你的应用</span></h1>
+
+        <div class="composer">
+          <textarea placeholder="给 ChatCode 发送消息，例如：帮我生成一个带后台管理的企业官网"></textarea>
+          <div class="composer-actions">
+            <button class="send" title="发送">↑</button>
+          </div>
+        </div>
+
+        <div class="hint-line">输入一句话描述需求，ChatCode 会帮你生成应用。</div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('appShell').classList.toggle('sidebar-open');
+    }
+  </script>
+</body>
+</html>

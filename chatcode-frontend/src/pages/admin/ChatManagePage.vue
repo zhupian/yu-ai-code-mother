@@ -71,6 +71,7 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { listAllChatHistoryByPageForAdmin } from '@/api/chatHistoryController'
 import { formatTime } from '@/utils/time'
+import { rememberWorkbenchAppId } from '@/utils/workbenchNavigation'
 
 const router = useRouter()
 
@@ -175,7 +176,8 @@ const doSearch = () => {
 // 查看应用对话
 const viewAppChat = (appId: number | undefined) => {
   if (appId) {
-    router.push(`/app/chat/${appId}`)
+    rememberWorkbenchAppId(appId)
+    router.push('/')
   }
 }
 

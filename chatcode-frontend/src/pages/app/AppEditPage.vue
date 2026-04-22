@@ -127,6 +127,7 @@ import { formatTime } from '@/utils/time'
 import UserInfo from '@/components/UserInfo.vue'
 import { getStaticPreviewUrl } from '@/config/env'
 import type { FormInstance } from 'ant-design-vue'
+import { rememberWorkbenchAppId } from '@/utils/workbenchNavigation'
 
 const route = useRoute()
 const router = useRouter()
@@ -256,7 +257,8 @@ const resetForm = () => {
 // 进入对话页面
 const goToChat = () => {
   if (appInfo.value?.id) {
-    router.push(`/app/chat/${appInfo.value.id}`)
+    rememberWorkbenchAppId(appInfo.value.id)
+    router.push('/')
   }
 }
 

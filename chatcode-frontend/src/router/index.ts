@@ -4,9 +4,9 @@ import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserManagePage from '@/pages/admin/UserManagePage.vue'
 import AppManagePage from '@/pages/admin/AppManagePage.vue'
-import AppChatPage from '@/pages/app/AppChatPage.vue'
 import AppEditPage from '@/pages/app/AppEditPage.vue'
-import ChatManagePage from "@/pages/admin/ChatManagePage.vue";
+import ChatManagePage from '@/pages/admin/ChatManagePage.vue'
+import { rememberWorkbenchAppId } from '@/utils/workbenchNavigation'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,8 +43,11 @@ const router = createRouter({
     },
     {
       path: '/app/chat/:id',
-      name: '应用对话',
-      component: AppChatPage,
+      name: '应用对话旧入口',
+      redirect: (to) => {
+        rememberWorkbenchAppId(to.params.id)
+        return { path: '/' }
+      },
     },
     {
       path: '/app/edit/:id',
