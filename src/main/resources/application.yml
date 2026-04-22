@@ -1,6 +1,6 @@
 spring:
   application:
-    name: yu-ai-code-mother-backend
+    name: chatcode-backend
   # session 配置
   session:
     store-type: redis
@@ -36,7 +36,7 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.yupi.yuaicodemother.controller
+      packages-to-scan: com.zhuPian.chatcode.controller
 # knife4j
 knife4j:
   enable: true
